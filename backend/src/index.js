@@ -1,27 +1,29 @@
+require('dotenv').config(); // Load GEOAPIFY_KEY from .env
 const express = require('express');
 const cors = require('cors');
-const locationRoutes = require('./routes/locationRoutes');
+const locationRoutes = require('./routes/locationRoutes'); // Path is relative to src/
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-// Middleware
+// 1. Middleware
 app.use(cors());
-app.use(express.json()); // NECESSARY: This allows your server to read Dialogflow's data
+app.use(express.json()); // Allows the server to read Dialogflow's data
 
-// Routes
-// Your webhook will live at: https://your-url.com/api/locations/webhook
+// 2. Routes
+// All your endpoints will start with /api/locations
 app.use('/api/locations', locationRoutes);
 
-// Simple Health Check
+// 3. Health Check
 app.get('/', (req, res) => {
-  res.send('🚀 Saarthi Backend is Online!');
+    res.send('🚀 Saarthi Backend is Online (Logic Mode: Manual)');
 });
 
+// 4. Start Server
 app.listen(PORT, () => {
-  console.log(`================================================`);
-  console.log(`✅ Saarthi Server running on Port ${PORT}`);
-  console.log(`🔗 Local URL: http://localhost:${PORT}`);
-  console.log(`📡 Webhook Path: /api/locations/webhook`);
-  console.log(`================================================`);
+    console.log(`================================================`);
+    console.log(`✅ SAARTHI BACKEND ACTIVE`);
+    console.log(`📡 Port: ${PORT}`);
+    console.log(`🔗 Webhook: /api/locations/webhook`);
+    console.log(`================================================`);
 });
