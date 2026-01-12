@@ -1,86 +1,64 @@
 #  Winter Hackathon - Repository Setup Guide
 
-Welcome to the Winter Hackathon organized by **Sceptix** and **GDG SJEC**! To track your progress and collaborate effectively, every team must fork the official repository and follow the steps below.
-
----
-
-##  Fork the Repository
-
-1. Go to the GitHub page: [https://github.com/gdgsjec/WinterHackathon-TEAM_NAME-](https://github.com/gdgsjec/WinterHackathon-TEAM_NAME-)
-2. Click on the **"Fork"** button in the upper-right corner of the page
-3. Assign the repository name as `WinterHackathon-<TeamName>`
-> 📝 **Note:** Please use **[PascalCase](https://pascal-case.com/)** for your team name.
+Welcome to the Winter Hackathon organized by **Sceptix** and **GDG SJEC**! 
 
 
-**Example:**
-```
-Repository Name: WinterHackathon-BossBandit
-```
 
----
+ Crowd Detection System
 
-##  Clone Your Forked Repository
+ ## Description
+## CrowdSense functions as a comprehensive platform for monitoring and navigating busy locations. Key features include:
 
-1. Go to your forked repository on GitHub
-2. Click the green **"Code"** button, then click the clipboard icon to copy the URL
-3. Open your terminal and run the following command to copy the repository to your local machine (replace `<repository-url>` with your forked repository URL):
+• Real-Time Monitoring : Displays live crowd capacity percentages, wait times, and trends (rising or falling) for various destinations like temples, beaches, and markets.
+• Shows live crowd % and wait time for temples, beaches, markets, etc.
+• Suggests best visiting hours and less crowded alternatives.
+• Includes Sarthi (AI guide) for personalized travel tips.
 
-```bash
-git clone <repository-url>
-```
+## Problem it solves:
+• Real-Time Status Dashboard: Displays live crowd percentages (e.g., 87% capacity) and wait times directly to the user.
+• Sarthi AI Companion: An intelligent chatbot that provides personalized travel tips, identifies the "Best Time" to visit, and suggests alternatives based on current data.
+• Authorities struggle to manage peak-time crowds.
+• Alternative places stay empty due to lack of real-time info.
 
----
-
-##  Start Working on Your Project
-
-Begin building your solution! Collaborate with your teammates and push changes regularly.
-
----
-## Update the README (Mandatory)
-
-Before writing any code, replace the existing README.md with information specific to your project.
-Your README is the first thing mentors and judges will see, so make sure it clearly explains what you built and why.
-You can replace the README with the recommended template below and update the contents as you work on the project.
-
-### Recommended Format for README:
-Use the structure below:
-```
- # Project Name
-
-## Description
-Briefly explain what your project does, the problem it solves, and who it is for.
+## Who it is for 
+We help people check how crowded a place is before they go, so they can avoid long queues and choose better timing. It's built for tourists, families, and city visitors who want smoother trips, and for authorities who want better crowd management.”
 
 # Demo Video Link: <insert Google Drive link to the demo video of the working of your project>
 
-## Features
-- Key feature 1
-- Key feature 2
-- Key feature 3
+# Features
+
+• Real-Time Crowd Status: Capacity %, wait times, and trends
+• AI Guidance (Sarthi): Personalized travel tips and alternatives
+• Explorer + Admin Tools: Map for users and dashboard for authorities
 
 ## Tech Stack
-List the technologies, frameworks, and tools used in the project.
+• DialogFlow
+• FireBase
+• Node js and Express
+• Geoapify
+• HTML5/CSS3/JavaScript
 
 ## Google Technologies Used
-> ⚠️ Using Google products is **mandatory** for this hackathon.
+1. Dialogflow — chatbot intent handling
+2. Firestore — real-time data storage
+3. Firebase Admin SDK — secure backend access to Firestore
+4. Gemini — AI response generation
 
-List the Google technologies you used and clearly explain **why** you chose them.
 
-**Example:**
-- **Firebase Authentication** – For secure and easy user authentication
-- **Firebase Firestore** – To store and manage real-time data
-- **Google Maps API** – To enable location-based features
 
 ## Setup Instructions
 Steps to run the project locally:
-1. Clone the repository
+1. Clone the repository:
 2. Install dependencies
 3. Add environment variables (if any)
 4. Run the project
 
 ## Team Members
-- Name 1
-- Name 2
-- Name 3
+1.Mega Shree
+2.Manswini M
+3.Keerthana
+4.Krithi
+
 ```
 
 
