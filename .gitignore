@@ -1,0 +1,6 @@
+.env
+node_modules/
+*.zip
+serviceAccountKey.json
+.DS_Store
+Thumbs.db
