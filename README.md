@@ -23,9 +23,9 @@ Welcome to the Winter Hackathon organized by **Sceptix** and **GDG SJEC**!
 ## Who it is for 
 We help people check how crowded a place is before they go, so they can avoid long queues and choose better timing. It's built for tourists, families, and city visitors who want smoother trips, and for authorities who want better crowd management.”
 
-# Demo Video Link: <insert Google Drive link to the demo video of the working of your project>
+# Demo Video Link: https://drive.google.com/file/d/1AHhbbpJqCIlPkxrHV1ziguWvlAMkVdix/view?usp=drive_link
 
-# Features
+## Features
 
 • Real-Time Crowd Status: Capacity %, wait times, and trends
 • AI Guidance (Sarthi): Personalized travel tips and alternatives
@@ -42,7 +42,7 @@ We help people check how crowded a place is before they go, so they can avoid lo
 1. Dialogflow — chatbot intent handling
 2. Firestore — real-time data storage
 3. Firebase Admin SDK — secure backend access to Firestore
-4. Gemini — AI response generation
+   
 
 
 
@@ -54,10 +54,10 @@ Steps to run the project locally:
 4. Run the project
 
 ## Team Members
-1.Mega Shree
-2.Manswini M
-3.Keerthana
-4.Krithi
+1.Megha Shree- Backend
+2.Manswini M- Chatbot
+3.Keerthana- FrontEnd
+4.Krithi- DataBase
 
 ```
 
