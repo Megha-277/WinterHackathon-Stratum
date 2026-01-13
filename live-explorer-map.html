@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Famous Places Near Me</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #faf8f5e6 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+        .header-content h1 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        .header-content p {
+            font-size: 14px;
+            color: #718096;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .map-wrapper {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            color: #2d3748;
+        }
+        .loading-overlay.hidden { display: none; }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #e2e8f0;
+            border-top-color: #FF6B35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .place-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .place-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+        .place-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+        .place-category {
+            font-size: 12px;
+            color: #718096;
+            text-transform: capitalize;
+        }
+        .distance-badge {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FDB913 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .place-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #4a5568;
+        }
+        .stat-icon {
+            font-size: 16px;
+        }
+        .crowd-indicator {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .crowd-calm {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .crowd-moderate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .crowd-peak {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .error-message {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .error-message h2 {
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+        .error-message p {
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Finding your location...</div>
+    </div>
+
+    <div class="header">
+        <button class="back-button" onclick="window.history.back()">
+            <svg viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </button>
+        <div class="header-content">
+            <h1>📍 Famous Places Near Me</h1>
+            <p>Discover popular destinations based on your current location</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="map-wrapper">
+            <div id="map"></div>
+        </div>
+        <div id="placesContainer"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        // All famous places in Mangalore area
+        const allPlaces = [
+            { name: 'Kadri Manjunath Temple', category: 'temple', lat: 12.9009, lng: 74.8427, rating: 4.6, crowdLevel: 'moderate', crowdPercentage: 58, waitTime: '30-45 mins', tip: 'Famous for ancient bronze statues' },
+            { name: 'Mangaladevi Temple', category: 'temple', lat: 12.8698, lng: 74.8428, rating: 4.5, crowdLevel: 'moderate', crowdPercentage: 48, waitTime: '30 mins', tip: 'The temple that gave Mangalore its name' },
+            { name: 'St. Aloysius Chapel', category: 'church', lat: 12.8726, lng: 74.8425, rating: 4.7, crowdLevel: 'calm', crowdPercentage: 35, waitTime: '15 mins', tip: 'Famous for stunning frescoes' },
+            { name: 'Kudroli Gokarnath Temple', category: 'temple', lat: 12.8635, lng: 74.8396, rating: 4.6, crowdLevel: 'peak', crowdPercentage: 78, waitTime: '1-2 hrs', tip: 'Spectacular during Dasara festival' },
+            { name: 'Panambur Beach', category: 'beach', lat: 12.9479, lng: 74.8057, rating: 4.4, crowdLevel: 'moderate', crowdPercentage: 52, waitTime: 'No wait', tip: 'Water sports and sunset views' },
+            { name: 'Tannirbhavi Beach', category: 'beach', lat: 12.9025, lng: 74.7998, rating: 4.3, crowdLevel: 'calm', crowdPercentage: 28, waitTime: 'No wait', tip: 'Less crowded, peaceful beach' },
+            { name: 'Pilikula Nisargadhama', category: 'nature', lat: 12.9355, lng: 74.8996, rating: 4.5, crowdLevel: 'moderate', crowdPercentage: 62, waitTime: '20 mins', tip: 'Zoo, lake, and heritage village' },
+            { name: 'Someshwara Beach', category: 'beach', lat: 12.7993, lng: 74.8507, rating: 4.4, crowdLevel: 'calm', crowdPercentage: 31, waitTime: 'No wait', tip: 'Rocky beach with unique formations' },
+            { name: 'Ullal Beach', category: 'beach', lat: 12.8058, lng: 74.8572, rating: 4.2, crowdLevel: 'calm', crowdPercentage: 25, waitTime: 'No wait', tip: 'Peaceful morning walks' },
+            { name: 'Surathkal Beach', category: 'beach', lat: 13.0117, lng: 74.7942, rating: 4.3, crowdLevel: 'moderate', crowdPercentage: 45, waitTime: 'No wait', tip: 'Visit the lighthouse nearby' },
+            { name: 'City Centre Mall', category: 'shopping', lat: 12.8648, lng: 74.8425, rating: 4.3, crowdLevel: 'peak', crowdPercentage: 72, waitTime: '15 mins', tip: 'Major shopping destination' },
+            { name: 'Sultan Battery', category: 'monument', lat: 12.9175, lng: 74.8065, rating: 4.1, crowdLevel: 'calm', crowdPercentage: 22, waitTime: '10 mins', tip: 'Historic watchtower with river views' }
+        ];
+
+        let map, userLocation;
+        let nearbyPlaces = [];
+
+        // Calculate distance between two coordinates (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Get crowd level color
+        function getCrowdColor(level) {
+            if (level === 'calm') return '#10b981';
+            if (level === 'moderate') return '#f59e0b';
+            if (level === 'peak') return '#ef4444';
+            return '#6b7280';
+        }
+
+        // Initialize map
+        function initMap(lat, lng) {
+            map = L.map('map').setView([lat, lng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Add user location marker
+            const userIcon = L.divIcon({
+                className: 'user-marker',
+                html: '<div style="width: 24px; height: 24px; background: #3b82f6; border: 4px solid white; border-radius: 50%; box-shadow: 0 0 0 4px rgba(59,130,246,0.3);"></div>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+            L.marker([lat, lng], { icon: userIcon })
+                .addTo(map)
+                .bindPopup('<b style="font-size: 14px;">📍 You are here</b>')
+                .openPopup();
+        }
+
+        // Add place markers to map
+        function addPlaceMarkers() {
+            nearbyPlaces.forEach(place => {
+                const color = getCrowdColor(place.crowdLevel);
+                const icon = L.divIcon({
+                    className: 'place-marker',
+                    html: `<div style="background: ${color}; width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.4);"></div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32]
+                });
+                
+                L.marker([place.lat, place.lng], { icon: icon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="min-width: 200px;">
+                            <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px;">${place.name}</div>
+                            <div style="font-size: 13px; color: #666; margin-bottom: 5px;">📍 ${place.distance.toFixed(1)} km away</div>
+                            <div style="font-size: 13px; color: #666; margin-bottom: 5px;">⭐ ${place.rating}</div>
+                            <div style="background: ${color}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: inline-block; text-transform: capitalize;">${place.crowdLevel} - ${place.crowdPercentage}%</div>
+                        </div>
+                    `);
+            });
+        }
+
+        // Display places in cards
+        function displayPlaces() {
+            const container = document.getElementById('placesContainer');
+            
+            if (nearbyPlaces.length === 0) {
+                container.innerHTML = `
+                    <div class="error-message">
+                        <h2>No places found nearby</h2>
+                        <p>Try moving to a different location</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = `
+                <div class="places-grid">
+                    ${nearbyPlaces.map(place => `
+                        <div class="place-card" onclick="map.setView([${place.lat}, ${place.lng}], 15)">
+                            <div class="place-header">
+                                <div>
+                                    <div class="place-name">${place.name}</div>
+                                    <div class="place-category">${place.category}</div>
+                                </div>
+                                <div class="distance-badge">${place.distance.toFixed(1)} km</div>
+                            </div>
+                            <div class="place-stats">
+                                <div class="stat">
+                                    <span class="stat-icon">⭐</span>
+                                    <span>${place.rating} rating</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-icon">⏰</span>
+                                    <span>${place.waitTime}</span>
+                                </div>
+                            </div>
+                            <div class="crowd-indicator crowd-${place.crowdLevel}">
+                                ${place.crowdLevel.toUpperCase()} - ${place.crowdPercentage}% Capacity
+                            </div>
+                            <div style="margin-top: 12px; font-size: 13px; color: #4a5568;">
+                                💡 ${place.tip}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // Get user location and find nearby places
+        function getUserLocation() {
+            if (!navigator.geolocation) {
+                document.getElementById('loadingOverlay').innerHTML = `
+                    <div class="error-message">
+                        <h2>Geolocation not supported</h2>
+                        <p>Your browser doesn't support location services</p>
+                    </div>
+                `;
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    // Calculate distances and sort by nearest
+                    allPlaces.forEach(place => {
+                        place.distance = calculateDistance(
+                            userLocation.lat,
+                            userLocation.lng,
+                            place.lat,
+                            place.lng
+                        );
+                    });
+
+                    // Get places within 20km, sorted by distance
+                    nearbyPlaces = allPlaces
+                        .filter(place => place.distance <= 20)
+                        .sort((a, b) => a.distance - b.distance);
+
+                    // Initialize map and display
+                    initMap(userLocation.lat, userLocation.lng);
+                    addPlaceMarkers();
+                    displayPlaces();
+                    
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                },
+                function(error) {
+                    document.getElementById('loadingOverlay').innerHTML = `
+                        <div style="text-align: center; color: #2d3748;">
+                            <h2 style="margin-bottom: 10px; color: #ef4444;">Location Access Denied</h2>
+                            <p style="color: #718096;">Please enable location services to find places near you</p>
+                        </div>
+                    `;
+                }
+            );
+        }
+
+        // Start the app
+        window.onload = getUserLocation;
+    </script>
+</body>
+</html>
